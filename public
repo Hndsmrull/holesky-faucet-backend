@@ -1,49 +1,39 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ETH Holesky Faucet</title>
+  <title>Holesky Faucet</title>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
-  <h1>ETH Holesky Faucet</h1>
-  <form id="faucet-form">
-    <label for="address">Wallet Address:</label>
-    <input type="text" id="address" required>
+  <h2>Claim ETH Holesky</h2>
+  <p>Follow <a href="https://twitter.com/YOUR_TWITTER" target="_blank">@YOUR_TWITTER</a> first!</p>
 
-    <label for="captcha">Captcha:</label>
-    <div id="captcha"></div> <!-- ReCAPTCHA here -->
+  <input type="text" id="wallet" placeholder="Enter your wallet address"><br><br>
 
-    <label for="twitterUsername">Twitter Username:</label>
-    <input type="text" id="twitterUsername" required>
+  <div class="g-recaptcha" data-sitekey="6LfwizYrAAAAABclMivtXrNnRP2PZoAZF-tONmh7"></div><br>
 
-    <button type="submit">Request Tokens</button>
-  </form>
+  <button onclick="claim()">Claim</button>
+  <p id="result"></p>
 
-  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   <script>
-    document.getElementById('faucet-form').addEventListener('submit', async (event) => {
-      event.preventDefault();
+    async function claim() {
+      const wallet = document.getElementById("wallet").value;
+      const token = grecaptcha.getResponse();
 
-      const address = document.getElementById('address').value;
-      const twitterUsername = document.getElementById('twitterUsername').value;
-      const captchaToken = grecaptcha.getResponse(); // Menangkap token reCAPTCHA
+      if (!token) return alert("Please complete the captcha");
 
-      const response = await fetch('/request-tokens', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ address, twitterUsername, captchaToken }),
+      const res = await fetch("https://your-backend-url.com/claim", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ address: wallet, captcha: token }),
       });
 
-      const result = await response.json();
-      if (response.ok) {
-        alert(`Success! TX Hash: ${result.txHash}`);
-      } else {
-        alert(`Error: ${result.error}`);
-      }
-    });
+      const data = await res.json();
+      document.getElementById("result").textContent = data.message;
+      grecaptcha.reset();
+    }
   </script>
 </body>
 </html>
