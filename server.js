@@ -3,14 +3,21 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const fetch = require("node-fetch");
 const { ethers } = require("ethers");
+const path = require("path");
 
 dotenv.config();
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public'))); // Menyajikan file statis
 
 const provider = new ethers.JsonRpcProvider("https://holesky.rpc-url-here");
 const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
+
+// Endpoint untuk halaman utama
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
 
 app.post("/request-tokens", async (req, res) => {
   const { address, captchaToken, twitterUsername } = req.body;
