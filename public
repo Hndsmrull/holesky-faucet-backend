@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ETH Holesky Faucet</title>
+</head>
+<body>
+  <h1>ETH Holesky Faucet</h1>
+  <form id="faucet-form">
+    <label for="address">Wallet Address:</label>
+    <input type="text" id="address" required>
+
+    <label for="captcha">Captcha:</label>
+    <div id="captcha"></div> <!-- ReCAPTCHA here -->
+
+    <label for="twitterUsername">Twitter Username:</label>
+    <input type="text" id="twitterUsername" required>
+
+    <button type="submit">Request Tokens</button>
+  </form>
+
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  <script>
+    document.getElementById('faucet-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const address = document.getElementById('address').value;
+      const twitterUsername = document.getElementById('twitterUsername').value;
+      const captchaToken = grecaptcha.getResponse(); // Menangkap token reCAPTCHA
+
+      const response = await fetch('/request-tokens', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ address, twitterUsername, captchaToken }),
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        alert(`Success! TX Hash: ${result.txHash}`);
+      } else {
+        alert(`Error: ${result.error}`);
+      }
+    });
+  </script>
+</body>
+</html>
